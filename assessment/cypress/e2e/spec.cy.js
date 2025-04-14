@@ -249,6 +249,13 @@ describe("Chat Interface Tests", () => {
         cy.get(`#user-result-${receiverId}`).click();
         cy.wait(2000);
 
+        // Use an ID-based selector for the chat room associated with the receiver
+        cy.log("Opening chat room from the list");
+        //cy.get(`#room-${activeRoom._id}`).should("exist").click();
+        // If you don't have access to room ID, use this alternative approach:
+        cy.get(`[id^="room-"]`).should("exist").first().click();
+        cy.wait(1000);
+
         // Step 4: Send a message
         cy.log("Sending test message");
         cy.get("#message-input")
@@ -277,9 +284,14 @@ describe("Chat Interface Tests", () => {
         cy.wait(2000);
 
         // Step 7: Verify receiver has a chat room and click it
-        cy.log("Looking for chat in receiver account");
-        cy.get("#chat-rooms-list button").should("exist").first().click();
-        cy.wait(1000);
+        // cy.log("Looking for chat in receiver account");
+        // cy.get("#chat-rooms-list button").should("exist").first().click();
+        // cy.wait(1000);
+        
+        cy.log("Opening chat room from the list");
+        //cy.get(`#room-${activeRoom._id}`).should("exist").click();
+        // If you don't have access to room ID, use this alternative approach:
+        cy.get(`[id^="room-"]`).should("exist").first().click();
 
         // Step 8: Verify the message is visible with exact text
         cy.log("Verifying message received");
