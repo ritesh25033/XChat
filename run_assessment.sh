@@ -1,52 +1,67 @@
-# CRIO_SOLUTION_AND_STUB_ONLY_START_MODULE_ONE
-# CRIO_SOLUTION_AND_STUB_ONLY_END_MODULE_ONE
 #!/bin/sh
 # Exit script on error
 set -e
- 
-# Read the first line starting with http from submit.txt (frontend URL)
-FRONTEND_URL=$(grep -m 1 '^http' submit.txt)
-# Remove trailing slash if present
-FRONTEND_URL="${FRONTEND_URL%/}"
- 
-# Read the second line starting with http from submit.txt (backend URL)
-BACKEND_URL=$(grep -m 2 '^http' submit.txt | tail -n 1)
-# Remove trailing slash if present
-BACKEND_URL="${BACKEND_URL%/}"
- 
-# Check if URLs are non-empty
-if [ -z "$FRONTEND_URL" ] || [ -z "$BACKEND_URL" ]; then
-    echo "ERROR: Both frontend and backend URLs must be provided in submit.txt"
-    exit 1
+
+# --- Start Frontend ---
+cd client
+echo "Installing dependencies in client directory..."
+npm install
+
+# Kill process on port 3000
+PORT=3000
+PID=$(netstat -tulpn 2>/dev/null | grep ":$PORT" | awk '{print $7}' | cut -d'/' -f1)
+if [ -n "$PID" ]; then
+  echo "Killing process on port $PORT (PID: $PID)..."
+  kill -9 $PID
 fi
 
-echo "Frontend URL: $FRONTEND_URL"
-echo "Backend URL: $BACKEND_URL"
- 
-cd assessment
-rm -rf node_modules package-lock.json
-# Update or create .env with both URLs
-echo "FRONTEND_URL=$FRONTEND_URL" > .env
-echo "BACKEND_URL=$BACKEND_URL" >> .env
- 
-# Check if dotenv is installed, otherwise install it
-if npm list dotenv | grep -q 'dotenv'; then
-    echo "dotenv is already installed."
-else
-    echo "Installing dotenv..."
-    npm install dotenv > /dev/null 2>&1 &
-fi
- 
+echo "Starting client on port 3000..."
+BROWSER=none PORT=3000 npm start &
+
+# Wait for client to be ready
+cd ..
+node waitForPort.js 3000
+
+echo "Waiting a few seconds for frontend to fully initialize..."
+sleep 5
+
+
+# --- Start Backend ---
+cd server
+echo "Installing dependencies in server directory..."
 npm install
+
+# Kill process on port 5000
+PORT=5000
+PID=$(netstat -tulpn 2>/dev/null | grep ":$PORT" | awk '{print $7}' | cut -d'/' -f1)
+if [ -n "$PID" ]; then
+  echo "Killing process on port $PORT (PID: $PID)..."
+  kill -9 $PID
+fi
+
+echo "Starting server on port 5000..."
+BROWSER=none PORT=5000 npm start &
+
+cd ..
+node waitForPort.js 5000
+
+echo "Waiting a few seconds for backend to fully initialize..."
+sleep 5
+
+# --- Run Assessment ---
+cd assessment
+echo "Installing assessment dependencies..."
+npm install
+
+echo "Running Cypress tests..."
 node runCypress.js
- 
-# Run Python script
+
+echo "Running Python post-processing..."
 python3 process_filtered_logs.py cypressResults.json
- 
-# Check if assessment_result.json exists
+
 if [ -f "assesment_result.json" ]; then
     cp assesment_result.json ..
-    echo "Assessment results generated"
+    echo "✅ Assessment results generated."
 else
-    echo "Python script failed!!!"
+    echo "❌ Python script failed to generate results."
 fi
