@@ -10,10 +10,12 @@ const roomRoutes = require('./routes/roomRoutes');
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -22,11 +24,12 @@ app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
 
 // Health check endpoint
+
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Server is running successfully',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -34,7 +37,7 @@ app.get('/health', (req, res) => {
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found'
+    message: 'Route not found',
   });
 });
 
@@ -43,7 +46,7 @@ app.use((error, req, res, next) => {
   console.error('Global error:', error);
   res.status(500).json({
     success: false,
-    message: 'Internal server error'
+    message: 'Internal server error',
   });
 });
 
