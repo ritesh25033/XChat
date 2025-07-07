@@ -225,6 +225,8 @@ describe("Chat Interface Tests", () => {
 
         // Step 2: Login as sender
         cy.log("Logging in as sender");
+        cy.clearLocalStorage();
+        cy.clearCookies();
         cy.visit("/login");
         cy.get("#login-page").should("be.visible");
         cy.get("#email-input").type(senderUser.email);
