@@ -250,7 +250,7 @@ describe("Chat Interface Tests", () => {
 
         // Use an ID-based selector for the chat room associated with the receiver
         cy.log("Opening chat room from the list");
-        //cy.get(`#room-${activeRoom._id}`).should("exist").click();
+        // cy.get(`#room-${activeRoom._id}`).should("exist").click();
         // If you don't have access to room ID, use this alternative approach:
         cy.get(`[id^="room-"]`).should("exist").first().click();
         cy.wait(1000);
@@ -288,7 +288,7 @@ describe("Chat Interface Tests", () => {
         // cy.wait(1000);
         
         cy.log("Opening chat room from the list");
-        //cy.get(`#room-${activeRoom._id}`).should("exist").click();
+        // cy.get(`#room-${activeRoom._id}`).should("exist").click();
         // If you don't have access to room ID, use this alternative approach:
         cy.get(`[id^="room-"]`).should("exist").first().click();
 
